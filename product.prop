@@ -1,0 +1,6 @@
+# Product properties for sycamore_row_5G (TB336ZA).
+
+# Threaded RenderEngine: the non-threaded skiagl path crashed SurfaceFlinger
+# on screenshots on the TB305FU; keep the threaded backend. Product props load
+# after vendor, overriding any stock value.
+debug.renderengine.backend=skiaglthreaded

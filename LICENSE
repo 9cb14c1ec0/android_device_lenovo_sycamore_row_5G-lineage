@@ -1,0 +1,7 @@
+Makefiles, board/device configuration, sepolicy, fstab, VINTF manifests and
+scripts in this directory are licensed under the Apache License, Version 2.0
+unless an individual file states otherwise.
+
+Prebuilt kernel Image, DTB, DTBO, touch firmware and any extracted vendor
+blobs are proprietary Lenovo / MediaTek / Microtrust material redistributed
+only so this port can be reproduced. They are NOT covered by Apache-2.0.

@@ -1,0 +1,16 @@
+# Vendor properties for sycamore_row_5G (TB336ZA). Seeded; tune during bring-up.
+
+# Platform
+ro.mtk_hardware=1
+ro.vendor.mtk_platform=MT6835
+
+# ABI / zygote
+ro.zygote=zygote64_32
+
+# Display: 1600x2560, 320 dpi, 90 Hz panels
+ro.sf.lcd_density=320
+
+# Media / codecs load the stock MTK OMX/C2 blobs (extracted).
+
+# Audio
+# (audio HAL + policy configs come from extracted /vendor/etc)

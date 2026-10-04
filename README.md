@@ -55,7 +55,7 @@ tree's `UNLOCK_RESEARCH.md`). The stock LK rejects any `vbmeta` not signed by
 Lenovo even when unlocked, so booting a self-signed LineageOS build will need a
 patched LK, as on the TB305FU. The build self-signs with the AVB test key.
 
-Firmware partitions (preloader, lk, tee, gz, scp, sspm, md1img, init_boot) are
+Firmware partitions (preloader, lk, tee, gz, scp, sspm, md1img) are
 not shipped; both slots must already carry the same stock `17.5.10.354`.
 
 ## Related

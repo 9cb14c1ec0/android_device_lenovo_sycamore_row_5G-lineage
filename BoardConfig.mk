@@ -55,6 +55,7 @@ BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(KERNE
 # Stock Android 16 GKI boot image geometry (header v4, 4 KiB pages).
 # kernel base 0x40000000, DTB/tags at 0x47c80000 (measured from stock images).
 BOARD_BOOT_HEADER_VERSION := 4
+BOARD_INIT_BOOT_HEADER_VERSION := 4
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x40000000
 BOARD_KERNEL_OFFSET := 0x00000000
@@ -67,6 +68,7 @@ BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
+BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 BOARD_RAMDISK_USE_LZ4 := true
 
 # A/B with Virtual A/B snapshots (matches stock).
@@ -76,10 +78,11 @@ BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 
 # Full A/B OTA: every partition LineageOS builds. Firmware (preloader, lk,
-# tee, gz, scp, sspm, spmfw, md1img, init_boot) is NOT shipped; both slots
-# must already carry the same stock firmware.
+# tee, gz, scp, sspm, spmfw, md1img) is NOT shipped; both slots must already
+# carry the same stock firmware.
 AB_OTA_PARTITIONS += \
     boot \
+    init_boot \
     vendor_boot \
     dtbo \
     vbmeta \
@@ -112,6 +115,7 @@ BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := false
 
 # Static partition image sizes.
 BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
+BOARD_INIT_BOOT_IMAGE_PARTITION_SIZE := 8388608
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 67108864
 BOARD_DTBOIMG_PARTITION_SIZE := 8388608
 BOARD_FLASH_BLOCK_SIZE := 262144

@@ -216,15 +216,6 @@
         <fqname>@1.0::IThermal/default</fqname>
         <fqname>@2.0::IThermal/default</fqname>
     </hal>
-    <hal format="aidl">
-        <name>vendor.lenovo.hardware.keyboard</name>
-        <version>2</version>
-        <interface>
-            <name>IKeyboard</name>
-            <instance>default</instance>
-        </interface>
-        <fqname>IKeyboard/default</fqname>
-    </hal>
     <hal format="hidl">
         <name>vendor.mediatek.hardware.apmonitor</name>
         <transport>hwbinder</transport>
@@ -244,24 +235,6 @@
             <instance>default</instance>
         </interface>
         <fqname>@1.0::IAtcid/default</fqname>
-    </hal>
-    <hal format="hidl">
-        <name>vendor.mediatek.hardware.bluetooth.audio</name>
-        <transport>hwbinder</transport>
-        <version>2.2</version>
-        <interface>
-            <name>IBluetoothAudioProvidersFactory</name>
-            <instance>default</instance>
-        </interface>
-        <fqname>@2.2::IBluetoothAudioProvidersFactory/default</fqname>
-    </hal>
-    <hal format="aidl">
-        <name>vendor.mediatek.hardware.bluetooth.audio</name>
-        <interface>
-            <name>IBluetoothAudioProviderFactory</name>
-            <instance>default</instance>
-        </interface>
-        <fqname>IBluetoothAudioProviderFactory/default</fqname>
     </hal>
     <hal format="hidl">
         <name>vendor.mediatek.hardware.camera.atms</name>
@@ -421,5 +394,15 @@
             <instance>default</instance>
         </interface>
         <fqname>@1.0::IVideoTelephony/default</fqname>
+    </hal>
+    <hal format="hidl">
+        <name>vendor.mediatek.hardware.bluetooth.audio</name>
+        <transport>hwbinder</transport>
+        <version>2.2</version>
+        <interface>
+            <name>IBluetoothAudioProvidersFactory</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@2.2::IBluetoothAudioProvidersFactory/default</fqname>
     </hal>
 </manifest>

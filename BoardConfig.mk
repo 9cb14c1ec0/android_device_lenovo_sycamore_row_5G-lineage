@@ -174,6 +174,7 @@ TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 # VINTF
 DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/configs/vintf/manifest.xml
 DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml
 
 # Verified Boot. The stock LK rejects any vbmeta not signed by Lenovo, even
 # when unlocked, so a patched LK is required to boot a self-signed build

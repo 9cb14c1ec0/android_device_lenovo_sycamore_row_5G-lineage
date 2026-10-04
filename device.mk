@@ -221,5 +221,24 @@ PRODUCT_PACKAGES += \
 PRODUCT_SOONG_NAMESPACES += \
     hardware/mediatek
 
+# -- HALs built from source that replace stock blobs ---------------------------
+# The stock vendor starts these services; AOSP / hardware/mediatek provide
+# them with matching init scripts, so the stock binaries are not extracted.
+# Audio: MediaTek HIDL 7.1 service (loads the stock audio.primary.mt6835.so).
+PRODUCT_PACKAGES += \
+    android.hardware.audio.service.mediatek
+
+# Gatekeeper: HIDL passthrough service; loads the stock gatekeeper.beanpod.so
+# (ro.hardware.gatekeeper=beanpod).
+PRODUCT_PACKAGES += \
+    android.hardware.gatekeeper@1.0-impl \
+    android.hardware.gatekeeper@1.0-service
+
+# Media / vibrator
+PRODUCT_PACKAGES += \
+    android.hardware.media.omx@1.0-service \
+    android.hardware.vibrator-service.mediatek \
+    vndservice
+
 # -- Proprietary files -------------------------------------------------------
 $(call inherit-product, vendor/lenovo/sycamore_row_5G/sycamore_row_5G-vendor.mk)

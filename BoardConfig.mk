@@ -180,11 +180,12 @@ DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/configs/vintf/manifest.xml
 DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml
 
-# Verified Boot. The stock LK rejects any vbmeta not signed by Lenovo, even
-# when unlocked, so a patched LK is required to boot a self-signed build
-# (see README.md). Self-sign with the AVB test key for now.
+# Verified Boot, self-signed with the AVB test key. When unlocked, LK logs
+# "Public key used to sign data rejected" for vbmeta and boots anyway (orange
+# state). Do NOT set --flags 3: with verification disabled LK loads boot,
+# vendor_boot, init_boot and dtbo at full partition size, runs out of its
+# 140 MiB AVB pool and halts on "g_boot_info.hdr_loaded".
 BOARD_AVB_ENABLE := true
-BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
 BOARD_AVB_ALGORITHM := SHA256_RSA4096
 BOARD_AVB_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
 BOARD_AVB_ROLLBACK_INDEX := 0

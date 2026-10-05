@@ -68,6 +68,15 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/init.recovery.mt8755.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt8755.rc \
     $(LOCAL_PATH)/rootdir/etc/init.recovery.mt8755.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt6835.rc
 
+# Touch firmware for recovery. The touch drivers request it from
+# /vendor/firmware ~15 s after probe; without it Himax falls back to a header
+# firmware that reports no touches. Ship all three panel vendors' files.
+PRODUCT_COPY_FILES += \
+    $(foreach f,$(wildcard vendor/lenovo/sycamore_row_5G/proprietary/vendor/firmware/himax_* \
+        vendor/lenovo/sycamore_row_5G/proprietary/vendor/firmware/novatek_* \
+        vendor/lenovo/sycamore_row_5G/proprietary/vendor/firmware/gt98*), \
+        $(f):$(TARGET_COPY_OUT_RECOVERY)/root/vendor/firmware/$(notdir $(f)))
+
 # -- Overlays ------------------------------------------------------------
 PRODUCT_PACKAGES += \
     FrameworksResOverlaySycamore \
@@ -242,3 +251,10 @@ PRODUCT_PACKAGES += \
 
 # -- Proprietary files -------------------------------------------------------
 $(call inherit-product, vendor/lenovo/sycamore_row_5G/sycamore_row_5G-vendor.mk)
+
+# -- Bring-up debugging ---------------------------------------------------------
+# Trust a local adb key (git-ignored adb_keys) so adb works from the first
+# boot, before setup. Builds without the file are unaffected.
+ifneq ($(wildcard $(LOCAL_PATH)/adb_keys),)
+PRODUCT_ADB_KEYS := $(LOCAL_PATH)/adb_keys
+endif

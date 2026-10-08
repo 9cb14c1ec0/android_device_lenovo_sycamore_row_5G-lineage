@@ -28,7 +28,10 @@ cameras (photo, video recording and hardware playback), Wi-Fi (WPA2/WPA3) and
 hotspot, Bluetooth, sensors, battery/charging, suspend, GNSS HAL, RIL/modem,
 telephony services, eSIM (OpenEUICC finds the eUICC in slot 2).
 
-Not done: VoLTE/IMS (MediaTek IMS stack not ported), some Lenovo-only HAL
+IMS: MediaTek ImsService (vendor/mediatek/ims, local manifest) binds as the
+MMTEL/emergency provider on both slots; VoLTE registration untested (no SIM).
+
+Not done: some Lenovo-only HAL
 domains (keyboard, display tuning, factory, ...), eSIM profile download not
 yet tested with a carrier code.
 

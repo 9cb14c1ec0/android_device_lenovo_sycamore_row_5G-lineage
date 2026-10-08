@@ -306,3 +306,8 @@ endif
 # see .repo/local_manifests/sycamore_row_5G.xml) is the privileged LPA.
 PRODUCT_PACKAGES += \
     OpenEUICC
+
+# IMS (VoLTE/VoWiFi): MediaTek ImsService adapted to AOSP telephony
+# (vendor/mediatek/ims, see .repo/local_manifests/sycamore_row_5G.xml). The
+# vendor IMS radio slots, mtkradioex and vtservice come from the stock blobs.
+$(call inherit-product, vendor/mediatek/ims/ims.mk)

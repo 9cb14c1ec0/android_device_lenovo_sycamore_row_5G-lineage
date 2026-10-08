@@ -1,0 +1,3 @@
+ro.vendor.storage.dynamicdata           u:object_r:vendor_dynamicdata_prop:s0 exact string
+vendor.storage.dynamicdata.backup.sz    u:object_r:vendor_dynamicdata_prop:s0 exact string
+vendor.storage.dynamicdata.type         u:object_r:vendor_dynamicdata_prop:s0 exact string

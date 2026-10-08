@@ -39,7 +39,7 @@ TARGET_NO_BOOTLOADER := true
 # vendor_ramdisk modules. Lenovo has not released matching kernel source.
 KERNEL_PATH := $(DEVICE_PATH)-kernel
 TARGET_NO_KERNEL := false
-TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/Image.gz
+TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/Image.lz4
 BOARD_PREBUILT_DTBIMAGE_DIR := $(KERNEL_PATH)/dtb
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
@@ -176,6 +176,8 @@ TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
 # VINTF
 DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/configs/vintf/manifest.xml
+# Stock MediaTek wpa_supplicant (supplicant AIDL V1).
+DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/configs/wifi/android.hardware.wifi.supplicant.xml
 DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml
 

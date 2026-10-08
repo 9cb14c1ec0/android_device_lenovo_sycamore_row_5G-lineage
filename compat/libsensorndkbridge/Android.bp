@@ -1,0 +1,16 @@
+// The Android 13 libsensorndkbridge exported the sensors 1.0 conversion
+// helpers, which the stock MediaTek camera sensor provider imports.
+cc_library_shared {
+    name: "libsensorndkbridge_sycamore_shim",
+    vendor: true,
+    whole_static_libs: ["android.hardware.sensors@1.0-convert"],
+    shared_libs: [
+        "android.hardware.sensors@1.0",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+}

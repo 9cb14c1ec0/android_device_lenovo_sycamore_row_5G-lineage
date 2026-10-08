@@ -19,41 +19,67 @@ LineageOS source.
 
 ## Status
 
-**Foundation / scaffolding — not yet building or booting.** The static
-device-tree structure is in place; vendor blob extraction and the iterative
-build + boot bring-up are the next phase.
+LineageOS 23.2 boots to setup/home on slot A in ~35 s, repeatably.
+Lunch: `lineage_sycamore_row_5G-bp4a-userdebug` (LineageOS 23.2's release
+config; `bp2a` leaves Launcher3 Overview flags off and Trebuchet crashes).
 
-Done:
-- `BoardConfig.mk`, product makefiles (`lineage_sycamore_row_5G.mk`,
-  `AndroidProducts.mk`), `device.mk` (adapted from the TB305FU tree).
-- `../sycamore_row_5G-kernel/` prebuilts: stock GKI `Image`, DTB, DTBO,
-  `vendor_dlkm` + `vendor_ramdisk` modules.
-- `rootdir/etc/`: stock fstabs, `init.*.rc`, `ueventd`, `init.insmod`.
-- `proprietary-files.txt`: ~2000 blobs, seeded from the TB305FU list adapted
-  to MT6835 and filtered to this device's stock dump, plus device-specific
-  HAL binaries (incl. the Beanpod KeyMint/gatekeeper HALs).
-- `configs/vintf/manifest.xml`: assembled from the stock vendor manifest +
-  fragments (92 HAL entries).
-- `extract-files.py` / `setup-makefiles.py`, `configs/permissions/`, props.
+Working: display/HWC, touch + stylus, gestures, audio + vibration, both
+cameras (photo, video recording and hardware playback), Wi-Fi (WPA2/WPA3) and
+hotspot, Bluetooth, sensors, battery/charging, suspend, GNSS HAL, RIL/modem,
+telephony services, eSIM (OpenEUICC finds the eUICC in slot 2).
 
-Bring-up TODO (roughly in order):
-1. Dump stock partitions and run `./extract-files.py <dump>` to populate
-   `vendor/lenovo/sycamore_row_5G`.
-2. First build (`lineage_sycamore_row_5G-bp2a-userdebug`); iterate on missing
-   blobs and ELF `blob_fixup`s (ABI version mismatches between the A13-era
-   vendor blobs and the A16 system).
-3. SELinux: `device/mediatek/sepolicy_vndr` + `sepolicy/vendor` denials.
-4. Boot bring-up: first-stage mount / fstab, display, touch, Wi-Fi/BT,
-   sensors, audio, telephony (5G).
-5. The crypto/decryption stack is already solved in the TWRP tree
-   (`android_device_lenovo_sycamore_row_5G`); reuse its findings.
+Not done: VoLTE/IMS (MediaTek IMS stack not ported), some Lenovo-only HAL
+domains (keyboard, display tuning, factory, ...), eSIM profile download not
+yet tested with a carrier code.
+
+### Install (slot A only)
+
+From Lineage recovery: `tools/install-diagnostic-slot-a.sh --flash`
+(`FLASH_BOOT=1` also flashes `boot_a`, needed when the release config changes
+the boot header patch level). It writes the four logical images through
+existing slot-A `super` metadata with SHA-256 readback, then flashes the
+vbmeta chain, `init_boot_a` and `vendor_boot_a` and verifies recovery. Adb and
+fastboot are pinned to `ANDROID_SERIAL` (default `HNY0HTW6`). A second
+MediaTek device in preloader mode on the same host can make reboot-to-recovery
+or -bootloader fall through to normal boot.
+
+### Android 13 vendor on Android 16: compatibility layers
+
+- VNDK 33 APEX (`PRODUCT_EXTRA_VNDK_VERSIONS`); `configs/vendor-linker.config.json`
+  adds `libapexsupport` for current libbinder.
+- `compat/`: shims for removed libbase, libprocessgroup (C-linkage
+  `SetTaskProfiles`), sensors convert and BoringSSL (`sk_dup`) symbols;
+  `compat/codec2-v33` ships the stock/VNDK 33 Codec2 framework and libui
+  renamed `-v33` for the codec services (`generate.py <stock vendor dir>`).
+- `extract-files.py` blob fixups (all applied at extraction): shim
+  `add_needed`s, `-v33` relinks (composer resources, Codec2), stock
+  keymint-V2-ndk via VNDK 33, `libutils` first for rild/atcid, Codec2 seccomp
+  additions (`uname`, `sysinfo`).
+- Stock MediaTek `wpa_supplicant` (`wpa_supplicant_mtk`, `configs/wifi`):
+  AOSP's WPA3-SAE is rejected by the connac driver.
+- Audio service fork in `audio/service` (optional sound trigger / MTK AIDL).
+- `sepolicy/vendor`: dynamicdata (selects the userdata fstab; without it
+  /data never mounts), KeyMint/HAL/blob labels, wakeup and battery sysfs.
+- eSIM: OpenEUICC + deps from `.repo/local_manifests/sycamore_row_5G.xml`.
+
+Bring-up diagnostics (early root adb, log collectors in /metadata) are opt-in:
+`TB336ZA_BRINGUP=true` on userdebug; see `bringup/README.md`.
+
+### Slot B warning (2026-10-05)
+
+Do **not** repeat the slot-B sideload or fastbootd flash sequence: slot-B
+logical data ended up in physical `super` extents used by stock slot A
+(`system_b` at sector 2048 overlapping `odm_dlkm_a` / `product_a`), and only a
+full stock `.354` `super` restore fixed it. See
+`~/tb336za/BOOTLOOP_REASSESSMENT.md`.
 
 ## Bootloader / Verified Boot
 
-The bootloader is unlockable only with a Lenovo-signed `sn.img` (see the TWRP
-tree's `UNLOCK_RESEARCH.md`). The stock LK rejects any `vbmeta` not signed by
-Lenovo even when unlocked, so booting a self-signed LineageOS build will need a
-patched LK, as on the TB305FU. The build self-signs with the AVB test key.
+The bootloader was unlocked with a Lenovo-signed `sn.img` (see the TWRP
+tree's `UNLOCK_RESEARCH.md`). On slot A, the stock LK boots Lineage recovery
+and Android with the complete self-signed Lineage boot/init_boot/vendor_boot/
+vbmeta chain. No bootloader patch is needed.
+The build self-signs with the AVB test key.
 
 Firmware partitions (preloader, lk, tee, gz, scp, sspm, md1img) are
 not shipped; both slots must already carry the same stock `17.5.10.354`.

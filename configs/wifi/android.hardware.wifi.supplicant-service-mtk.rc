@@ -1,0 +1,10 @@
+# Stock MediaTek wpa_supplicant (WPA3-SAE works with the connac driver only
+# through MediaTek's patches); shipped as wpa_supplicant_mtk.
+service wpa_supplicant /vendor/bin/hw/wpa_supplicant_mtk \
+	-O/data/vendor/wifi/wpa/sockets -dd \
+	-g@android:wpa_wlan0
+	interface aidl android.hardware.wifi.supplicant.ISupplicant/default
+	class main
+	socket wpa_wlan0 dgram 660 wifi wifi
+	disabled
+	oneshot

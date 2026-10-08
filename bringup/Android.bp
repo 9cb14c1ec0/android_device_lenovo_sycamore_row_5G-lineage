@@ -1,0 +1,20 @@
+// Temporary pre-data USB diagnostic, selected only by this userdebug product.
+// adbd is the working recovery daemon from the same Lineage build.
+cc_prebuilt_binary {
+    name: "tb336za_adbd",
+    system_ext_specific: true,
+    srcs: ["adbd"],
+    init_rc: ["tb336za_adbd.rc"],
+    strip: { none: true },
+    stl: "none",
+    shared_libs: [
+        "libadbd_fs",
+        "liblog",
+        "libselinux",
+        "libbase",
+        "libprocessgroup",
+        "libadbd_auth",
+        "libcrypto",
+        "libc++",
+    ],
+}

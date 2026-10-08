@@ -1,0 +1,21 @@
+# Fuel gauge and charger power supplies on i2c-3 (read by the health HAL).
+genfscon sysfs /devices/platform/soc/11b20000.i2c/i2c-3/3-0055/power_supply u:object_r:sysfs_batteryinfo:s0
+genfscon sysfs /devices/platform/soc/11b20000.i2c/i2c-3/3-001a/power_supply u:object_r:sysfs_batteryinfo:s0
+
+# Wakeup sources outside the MediaTek common policy (read by system_suspend).
+genfscon sysfs /devices/platform/soc/11013000.spi3/spi_master/spi3/spi3.0/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11b20000.i2c/i2c-3/3-001a/power_supply/charger/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11b20000.i2c/i2c-3/3-001a/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11b20000.i2c/i2c-3/3-0055/power_supply/battery/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db1000.i2c/i2c-6/6-0058/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db1000.i2c/i2c-6/6-0059/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db1000.i2c/i2c-6/6-005a/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db1000.i2c/i2c-6/6-005b/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db2000.i2c/i2c-7/7-0060/tcpc/type_c_port0/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11db2000.i2c/i2c-7/7-0060/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/11ed0000.i2c/i2c-0/0-001a/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/1c804000.spmi/spmi-0/0-03/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/1c804000.spmi/spmi-0/0-04/mt6377-rtc/rtc/rtc0/alarmtimer.0.auto/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/1c804000.spmi/spmi-0/0-04/mt6377-rtc/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/1c804000.spmi/spmi-0/0-04/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/soc:lenovo_kb/wakeup u:object_r:sysfs_wakeup:s0

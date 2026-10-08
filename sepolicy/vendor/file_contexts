@@ -1,0 +1,19 @@
+# Temporary daemon installed outside APEX for pre-data bring-up.
+/system_ext/bin/tb336za_adbd    u:object_r:adbd_exec:s0
+
+# Stock Beanpod executable name differs from the platform default pattern.
+/vendor/bin/hw/android\.hardware\.security\.keymint@2\.0-service\.beanpod    u:object_r:hal_keymint_default_exec:s0
+
+# Lenovo userdata layout selector (see dynamicdata.te).
+/vendor/bin/dynamicdata    u:object_r:dynamicdata_exec:s0
+
+# Stock HAL executables whose names the MediaTek common policy does not match.
+/vendor/bin/hw/android\.hardware\.usb-aidl-service\.mediatekv1\.0      u:object_r:mtk_hal_usb_exec:s0
+/vendor/bin/hw/android\.hardware\.usb\.gadget-service\.mediatekv1\.1   u:object_r:mtk_hal_usb_exec:s0
+/vendor/bin/hw/android\.hardware\.biometrics\.face@2\.0-service\.face  u:object_r:hal_face_default_exec:s0
+/vendor/bin/hw/vendor\.dolby\.media\.c2-default-service-dax            u:object_r:mediacodec_exec:s0
+/vendor/lib(64)?/hw/gralloc\.common\.so                                u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/arm\.mali\.platform-V1-ndk\.so                        u:object_r:same_process_hal_file:s0
+/vendor/bin/hw/android\.hardware\.audio\.service\.sycamore             u:object_r:hal_audio_default_exec:s0
+/dev/block/by-name/lenovocust              u:object_r:lenovocust_block_device:s0
+/vendor/bin/hw/wpa_supplicant_mtk                                    u:object_r:hal_wifi_supplicant_default_exec:s0

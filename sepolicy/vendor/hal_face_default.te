@@ -1,0 +1,2 @@
+# Arcsoft face HAL talks to its Beanpod TA.
+allow hal_face_default teei_client_device:chr_file rw_file_perms;

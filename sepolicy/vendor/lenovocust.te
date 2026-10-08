@@ -1,0 +1,3 @@
+# Lenovo customisation partition, checked and mounted at boot.
+type lenovocust_block_device, dev_type;
+allow fsck lenovocust_block_device:blk_file rw_file_perms;

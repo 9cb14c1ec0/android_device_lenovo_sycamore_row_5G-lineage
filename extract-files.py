@@ -19,6 +19,7 @@ from extract_utils.fixups_blob import (
     blob_fixups_user_type,
 )
 from extract_utils.fixups_lib import (
+    lib_fixup_remove,
     lib_fixups,
     lib_fixups_user_type,
 )
@@ -38,6 +39,10 @@ def lib_fixup_vendor_suffix(lib: str, partition: str, *args, **kwargs):
 
 lib_fixups: lib_fixups_user_type = {
     **lib_fixups,
+    # Beanpod KeyMint was linked against the VNDK 33 keymint-V2-ndk, which still
+    # contains IRemotelyProvisionedComponent. The current-source vendor variant
+    # moved it to the rkp library, so use the VNDK 33 APEX copy at runtime.
+    'android.hardware.security.keymint-V2-ndk': lib_fixup_remove,
 }
 
 blob_fixups: blob_fixups_user_type = {
@@ -141,9 +146,13 @@ blob_fixups: blob_fixups_user_type = {
         'vendor/bin/mnld',
         'vendor/lib/libaalservice.so',
         'vendor/lib64/libaalservice.so',
-        'vendor/lib64/libcam.utils.sensorprovider.so',
     ): blob_fixup()
         .replace_needed('android.hardware.sensors-V2-ndk.so', 'android.hardware.sensors-V3-ndk.so'),
+    (
+        'vendor/lib64/libcam.utils.sensorprovider.so',
+    ): blob_fixup()
+        .replace_needed('android.hardware.sensors-V2-ndk.so', 'android.hardware.sensors-V3-ndk.so')
+        .add_needed('libsensorndkbridge_sycamore_shim.so'),
     (
         'vendor/lib/hw/audio.primary.mt6835.so',
         'vendor/lib/hw/vendor.mediatek.hardware.pq_aidl-impl.so',
@@ -172,6 +181,83 @@ blob_fixups: blob_fixups_user_type = {
         'vendor/etc/init/vendor.mediatek.hardware.mms@1.7-service.rc',
     ): blob_fixup()
         .regex_replace(r'(?m)^\s*interface\s+vendor\.mediatek\.hardware\.[^\n]*\n', ''),
+    # Stock libbase string entry points removed by Android 16.
+    (
+        'vendor/lib64/libnvram.so',
+        'vendor/lib64/android.hardware.power-service-mediatek.so',
+        'vendor/bin/dynamicdata',
+        'vendor/bin/hw/android.hardware.usb-aidl-service.mediatekv1.0',
+        'vendor/bin/hw/android.hardware.neuralnetworks-shim-service-mtk-lazy',
+        'vendor/bin/hw/android.hardware.neuralnetworks-shim-service-mtk',
+        'vendor/bin/hw/vendor.lenovo.hardware.battery-service',
+        'vendor/lib/libnvram.so',
+        'vendor/lib64/hw/android.hardware.boot@1.0-impl-1.2-mtkimpl.so',
+    ): blob_fixup().add_needed('libbase_sycamore_shim.so'),
+    # Stock HWC3 service keeps the Android 13 composer resources helpers.
+    (
+        'vendor/lib64/android.hardware.graphics.composer@2.1-resources-v33.so',
+        'vendor/lib64/android.hardware.graphics.composer@2.2-resources-v33.so',
+    ): blob_fixup()
+        .fix_soname()
+        .replace_needed('android.hardware.graphics.composer@2.1-resources.so', 'android.hardware.graphics.composer@2.1-resources-v33.so'),
+    (
+        'vendor/bin/hw/android.hardware.graphics.composer@3.1-service',
+    ): blob_fixup()
+        .replace_needed('android.hardware.graphics.composer@2.1-resources.so', 'android.hardware.graphics.composer@2.1-resources-v33.so')
+        .replace_needed('android.hardware.graphics.composer@2.2-resources.so', 'android.hardware.graphics.composer@2.2-resources-v33.so'),
+    # libmtkutils re-exports an old libutils (SharedBuffer, VectorImpl). Load
+    # the real libutils first so current libbinder binds to it.
+    (
+        'vendor/bin/atcid',
+        'vendor/bin/hw/mtkfusionrild',
+    ): blob_fixup().add_needed('libutils.so'),
+    # The MediaTek Codec2 service calls uname()/sysinfo() on Android 16; without them the
+    # seccomp filter kills the service with SIGSYS.
+    'vendor/etc/seccomp_policy/android.hardware.media.c2@1.2-mediatek-seccomp-policy': blob_fixup()
+        .add_line_if_missing('uname: 1')
+        .add_line_if_missing('sysinfo: 1'),
+    # Stock Codec2 services and plugins use the Android 13 Codec2 framework,
+    # shipped renamed by compat/codec2-v33 (see generate.py there).
+    (
+        'vendor/lib64/libcodec2_mtk_venc.so',
+        'vendor/lib64/libcodec2_soft_mtk_msadpcmdec.so',
+        'vendor/lib64/libcodec2_mtk_vdec.so',
+        'vendor/lib64/libcodec2_mtk_c2store.so',
+        'vendor/lib64/libcodec2_soft_mtk_alacdec.so',
+        'vendor/lib64/libcodec2_soft_ddpdec.so',
+        'vendor/lib64/libcodec2_soft_mtk_imaadpcmdec.so',
+        'vendor/lib64/libcodec2_vpp_mi_plugin.so',
+        'vendor/lib64/libcodec2_vpp_qt_plugin.so',
+        'vendor/lib64/libcodec2_vpp_AIMEMC_plugin.so',
+        'vendor/lib64/libcodec2_vpp_AISR_plugin.so',
+        'vendor/lib64/libcodec2_soft_mtk_mp3dec.so',
+        'vendor/lib64/libcodec2_soft_ac4dec.so',
+        'vendor/lib64/libcodec2_store_dolby.so',
+        'vendor/lib64/libcodec2_vpp_rs_plugin.so',
+        'vendor/lib64/libcodec2_soft_mtk_wmadec.so',
+        'vendor/bin/hw/android.hardware.media.c2@1.2-mediatek-64b',
+        'vendor/bin/hw/vendor.dolby.media.c2-default-service-dax',
+    ): blob_fixup()
+        .replace_needed('libcodec2.so', 'libcodec2-v33.so')
+        .replace_needed('libstagefright_foundation.so', 'libstagefright_foundation-v33.so')
+        .replace_needed('libstagefright_bufferqueue_helper.so', 'libstagefright_bufferqueue_helper-v33.so')
+        .replace_needed('libcodec2_vndk.so', 'libcodec2_vndk-v33.so')
+        .replace_needed('libcodec2_soft_common.so', 'libcodec2_soft_common-v33.so')
+        .replace_needed('libsfplugin_ccodec_utils.so', 'libsfplugin_ccodec_utils-v33.so')
+        .replace_needed('libcodec2_hidl@1.0.so', 'libcodec2_hidl@1.0-v33.so')
+        .replace_needed('libcodec2_hidl@1.1.so', 'libcodec2_hidl@1.1-v33.so')
+        .replace_needed('libcodec2_hidl@1.2.so', 'libcodec2_hidl@1.2-v33.so')
+        .replace_needed('libcodec2_hidl_plugin.so', 'libcodec2_hidl_plugin-v33.so')
+        .replace_needed('libstagefright_bufferpool@2.0.1.so', 'libstagefright_bufferpool@2.0.1-v33.so')
+        .replace_needed('libui.so', 'libui-v33.so'),
+    # Stock MediaTek wpa_supplicant: Android 13 BoringSSL names.
+    'vendor/bin/hw/wpa_supplicant_mtk': blob_fixup()
+        .add_needed('libcrypto_shim.so')
+        .add_needed('libcrypto_sycamore_shim.so'),
+    # Android 13 C-linkage libprocessgroup wrappers removed by Android 16.
+    (
+        'vendor/lib64/hw/hwcomposer.mtk_common.so',
+    ): blob_fixup().add_needed('libprocessgroup_sycamore_shim.so'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(

@@ -1,0 +1,6 @@
+cc_library_shared {
+    name: "libbase_sycamore_shim",
+    vendor: true,
+    srcs: ["legacy.cpp"],
+    shared_libs: ["libbase"],
+}

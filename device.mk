@@ -133,6 +133,9 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.stepcounter.xml \
     frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.stepdetector.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.xml \
+    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/native/data/etc/android.hardware.telephony.ims.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.ims.xml \
+    frameworks/native/data/etc/android.hardware.telephony.euicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.euicc.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.multitouch.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
@@ -213,19 +216,55 @@ PRODUCT_PACKAGES += \
 $(call soong_config_set_bool,mediatek_gadget,use_custom_usb_gadget_rc,true)
 
 # VNDK
+# Stock vendor requests ro.vndk.version=33. The bootstrap linker generator
+# requires the matching APEX before keystore/vold can start.
+PRODUCT_EXTRA_VNDK_VERSIONS += 33
+
+# Current libbinder uses this LLNDK library, absent from the VNDK 33 list.
+PRODUCT_VENDOR_LINKER_CONFIG_FRAGMENTS += $(LOCAL_PATH)/configs/vendor-linker.config.json
+
+PRODUCT_PACKAGES += \
+    libbase_sycamore_shim \
+    libprocessgroup_sycamore_shim \
+    libsensorndkbridge_sycamore_shim
+
+# Android 13 Codec2 framework for the stock codec services (compat/codec2-v33).
+PRODUCT_PACKAGES += \
+    libcodec2-v33 \
+    libstagefright_foundation-v33.vendor \
+    libstagefright_bufferqueue_helper-v33 \
+    libui-v33 \
+    libcodec2_vndk-v33 \
+    libcodec2_soft_common-v33 \
+    libsfplugin_ccodec_utils-v33 \
+    libcodec2_hidl@1.0-v33 \
+    libcodec2_hidl@1.1-v33 \
+    libcodec2_hidl@1.2-v33 \
+    libcodec2_hidl_plugin-v33 \
+    libstagefright_bufferpool@2.0.1-v33
+
 PRODUCT_PACKAGES += \
     vndservicemanager
 
 # Wi-Fi: AOSP service. Lenovo's libwifi-hal-mtk.so is built against the
 # Android 15 wifi_hal.h; libwifi-hal-wrapper translates its function table.
+# This firmware's HAL predates the Android 14 QPR2 RTT v3 entries.
 $(call soong_config_set_bool,mediatek_wifi_hal,use_pre_baklava_qpr0_struct,true)
+$(call soong_config_set_bool,mediatek_wifi_hal,use_pre_u_qpr2_struct,true)
 
 PRODUCT_PACKAGES += \
     android.hardware.wifi-service \
     hostapd \
     libwifi-hal-wrapper \
-    wlan_assistant \
-    wpa_supplicant
+    wlan_assistant
+
+# Stock MediaTek wpa_supplicant instead of AOSP's: the connac driver rejects
+# AOSP's WPA3-SAE association (status 16).
+PRODUCT_PACKAGES += \
+    libcrypto_shim.vendor \
+    libcrypto_sycamore_shim
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/wifi/android.hardware.wifi.supplicant-service-mtk.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/android.hardware.wifi.supplicant-service-mtk.rc
 
 PRODUCT_SOONG_NAMESPACES += \
     hardware/mediatek
@@ -233,9 +272,13 @@ PRODUCT_SOONG_NAMESPACES += \
 # -- HALs built from source that replace stock blobs ---------------------------
 # The stock vendor starts these services; AOSP / hardware/mediatek provide
 # them with matching init scripts, so the stock binaries are not extracted.
-# Audio: MediaTek HIDL 7.1 service (loads the stock audio.primary.mt6835.so).
+# Audio: MediaTek HIDL 7.1 service (loads the stock audio.primary.mt6835.so);
+# device fork in audio/service with optional sound trigger / MTK AIDL parts.
 PRODUCT_PACKAGES += \
-    android.hardware.audio.service.mediatek
+    android.hardware.audio.service.sycamore \
+    android.hardware.audio.effect@7.0-impl \
+    android.hardware.soundtrigger@2.3-impl \
+    android.hardware.bluetooth.audio@2.1-impl
 
 # Gatekeeper: HIDL passthrough service; loads the stock gatekeeper.beanpod.so
 # (ro.hardware.gatekeeper=beanpod).
@@ -258,3 +301,8 @@ $(call inherit-product, vendor/lenovo/sycamore_row_5G/sycamore_row_5G-vendor.mk)
 ifneq ($(wildcard $(LOCAL_PATH)/adb_keys),)
 PRODUCT_ADB_KEYS := $(LOCAL_PATH)/adb_keys
 endif
+
+# eSIM: the second SIM slot is an eUICC. OpenEUICC (packages/apps/OpenEUICC,
+# see .repo/local_manifests/sycamore_row_5G.xml) is the privileged LPA.
+PRODUCT_PACKAGES += \
+    OpenEUICC

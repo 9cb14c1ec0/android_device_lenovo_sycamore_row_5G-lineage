@@ -22,6 +22,13 @@ PRODUCT_PACKAGES += \
 $(call inherit-product, device/lenovo/sycamore_row_5G/device.mk)
 
 # Full LineageOS for a tablet with cellular (5G variant).
+# Opt-in bring-up diagnostics (TB336ZA_BRINGUP=true, userdebug only):
+# unauthenticated root ADB before /data mounts, plus log collectors in
+# /metadata/bootstat. See bringup/README.md.
+ifeq ($(TB336ZA_BRINGUP)-$(TARGET_BUILD_VARIANT),true-userdebug)
+WITH_ADB_INSECURE := 1
+PRODUCT_PACKAGES += tb336za_adbd
+endif
 $(call inherit-product, vendor/lineage/config/common_full_tablet.mk)
 
 PRODUCT_DEVICE := sycamore_row_5G

@@ -1,0 +1,8 @@
+// BoringSSL symbols the stock MediaTek wpa_supplicant imports under their
+// Android 13 names (CBS_init comes from hardware/lineage libcrypto_shim).
+cc_library_shared {
+    name: "libcrypto_sycamore_shim",
+    vendor: true,
+    srcs: ["legacy.c"],
+    shared_libs: ["libcrypto"],
+}

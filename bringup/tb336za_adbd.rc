@@ -1,0 +1,61 @@
+# Temporary pre-data ADB. APEX adbd replaces this service after activation.
+# The stage file is pre-created and labeled metadata_bootstat_file in recovery.
+on early-init
+    write /metadata/bootstat/tb336za-init-stage early-init
+
+on init
+    setprop service.adb.root 1
+    write /metadata/bootstat/tb336za-init-stage init
+
+on early-fs
+    write /metadata/bootstat/tb336za-init-stage early-fs
+
+on post-fs
+    write /metadata/bootstat/tb336za-init-stage post-fs
+    write /metadata/bootstat/tb336za-post-fs-props "adbd=${init.svc.adbd:-unset} hwsm=${init.svc.hwservicemanager:-unset} ready=${hwservicemanager.ready:-unset} disabled=${hwservicemanager.disabled:-unset} vold=${init.svc.vold:-unset} usb=${sys.usb.config:-unset} ffs=${sys.usb.ffs.ready:-unset} dynamicdata=${vendor.storage.dynamicdata.type:-unset}"
+    start tb336za-state
+    start tb336za-logcat
+    start adbd
+    start tb336za-usb
+
+on post-fs-data
+    write /metadata/bootstat/tb336za-init-stage post-fs-data
+
+on boot
+    write /metadata/bootstat/tb336za-init-stage boot
+
+service adbd /system_ext/bin/tb336za_adbd --root_seclabel=u:r:su:s0
+    class core
+    socket adbd seqpacket 660 system system
+    disabled
+    override
+    seclabel u:r:adbd:s0
+    user root
+    restart_period 0
+
+# Temporary userdebug collectors. su is permissive only in debug builds.
+# Keep the device policy enforcing while preserving normal startup evidence.
+service tb336za-state /system/bin/sh -c "/system/bin/dmesg > /metadata/bootstat/tb336za-dmesg-initial; /system/bin/sync; while true; do /system/bin/getprop > /metadata/bootstat/tb336za-properties; /system/bin/dmesg > /metadata/bootstat/tb336za-dmesg; /system/bin/sync; /system/bin/sleep 5; done"
+    disabled
+    user root
+    group root log readproc
+    seclabel u:r:su:s0
+    setenv LD_LIBRARY_PATH /system/lib64:/system_ext/lib64
+    stdio_to_kmsg
+
+service tb336za-logcat /system/bin/logcat -b all -f /metadata/bootstat/tb336za-logcat -r 2048 -n 2
+    disabled
+    user root
+    group root log readproc
+    seclabel u:r:su:s0
+    stdio_to_kmsg
+
+# Bind the debug gadget independently of init's action queue. A blocked
+# storage action must not prevent collecting live startup logs over ADB.
+service tb336za-usb /system/bin/sh -c "while [ $$(/system/bin/getprop sys.usb.ffs.ready) != 1 ]; do /system/bin/sleep 1; done; echo 0x201C > /config/usb_gadget/g1/idProduct; [ -e /config/usb_gadget/g1/configs/b.1/f1 ] || /system/bin/ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1; echo 11201000.usb0 > /config/usb_gadget/g1/UDC; /system/bin/setprop sys.usb.state adb"
+    disabled
+    oneshot
+    user root
+    group root
+    seclabel u:r:su:s0
+    stdio_to_kmsg

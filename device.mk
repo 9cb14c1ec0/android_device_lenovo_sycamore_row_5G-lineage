@@ -311,3 +311,8 @@ PRODUCT_PACKAGES += \
 # (vendor/mediatek/ims, see .repo/local_manifests/sycamore_row_5G.xml). The
 # vendor IMS radio slots, mtkradioex and vtservice come from the stock blobs.
 $(call inherit-product, vendor/mediatek/ims/ims.mk)
+
+# Voice calls: LineageOS' tablet telephony config ships Messaging but no dialer
+# (it is only in the phone config); the 5G model can make calls.
+PRODUCT_PACKAGES += \
+    Dialer

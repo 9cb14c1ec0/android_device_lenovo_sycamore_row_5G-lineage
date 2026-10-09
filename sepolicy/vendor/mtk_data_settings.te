@@ -1,0 +1,9 @@
+# Pushes the user data settings to the modem through mtkradioex (see
+# datasettings/main.cpp).
+type mtk_data_settings, domain;
+type mtk_data_settings_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(mtk_data_settings)
+
+binder_use(mtk_data_settings)
+hal_client_domain(mtk_data_settings, hal_telephony)
+

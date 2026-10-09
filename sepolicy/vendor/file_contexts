@@ -17,3 +17,6 @@
 /vendor/bin/hw/android\.hardware\.audio\.service\.sycamore             u:object_r:hal_audio_default_exec:s0
 /dev/block/by-name/lenovocust              u:object_r:lenovocust_block_device:s0
 /vendor/bin/hw/wpa_supplicant_mtk                                    u:object_r:hal_wifi_supplicant_default_exec:s0
+
+# Modem data settings sync (see mtk_data_settings.te).
+/vendor/bin/mtk_data_settings                                        u:object_r:mtk_data_settings_exec:s0

@@ -1,0 +1,17 @@
+# The MediaTek framework normally syncs these on every change; AOSP never
+# does. Rerun when rild (re)starts or a SIM card or eSIM profile appears.
+service vendor.mtk_data_settings /vendor/bin/mtk_data_settings ${vendor.gsm.ril.uicctype:-none} ${vendor.gsm.ril.uicctype.2:-none}
+    class late_start
+    user radio
+    group radio
+    oneshot
+    disabled
+
+on property:init.svc.vendor.ril-daemon-mtk=running
+    restart vendor.mtk_data_settings
+
+on property:vendor.gsm.ril.uicctype=*
+    restart vendor.mtk_data_settings
+
+on property:vendor.gsm.ril.uicctype.2=*
+    restart vendor.mtk_data_settings

@@ -1,0 +1,11 @@
+// Pushes the user data settings to the modem (see main.cpp).
+cc_binary {
+    name: "mtk_data_settings",
+    vendor: true,
+    srcs: ["main.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    init_rc: ["mtk_data_settings.rc"],
+}

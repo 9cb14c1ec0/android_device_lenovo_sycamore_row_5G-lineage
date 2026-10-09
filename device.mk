@@ -316,3 +316,8 @@ $(call inherit-product, vendor/mediatek/ims/ims.mk)
 # (it is only in the phone config); the 5G model can make calls.
 PRODUCT_PACKAGES += \
     Dialer
+
+# Tells the modem that mobile data is on; without it the Verizon data policy
+# refuses the internet PDN (see datasettings/main.cpp).
+PRODUCT_PACKAGES += \
+    mtk_data_settings

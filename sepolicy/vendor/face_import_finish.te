@@ -1,0 +1,9 @@
+# Tells the face HAL that face template import has finished (see
+# faceimport/main.cpp).
+type face_import_finish, domain;
+type face_import_finish_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(face_import_finish)
+
+binder_use(face_import_finish)
+allow face_import_finish hal_lenovofaceimport_service:service_manager find;
+binder_call(face_import_finish, hal_lenovofaceimport_default)

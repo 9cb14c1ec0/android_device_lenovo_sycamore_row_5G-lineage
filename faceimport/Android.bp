@@ -1,0 +1,11 @@
+// Tells the face HAL that face template import has finished (see main.cpp).
+cc_binary {
+    name: "face_import_finish",
+    vendor: true,
+    srcs: ["main.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    init_rc: ["face_import_finish.rc"],
+}

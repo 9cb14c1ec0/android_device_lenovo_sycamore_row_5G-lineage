@@ -1035,6 +1035,7 @@ vendor/thh/ta/08030000000000000000000000000000.ta
 vendor/thh/ta/08110000000000000000000000000000.ta
 vendor/thh/ta/40188311faf343488db888ad39496f9a.ta
 vendor/thh/ta/5020170115e016302017012521300000.ta
+vendor/thh/ta/8888c04fc30c4dd0a319ea29643d4d4c.ta
 vendor/thh/ta/c09c9c5daa504b78b0e46eda61556c3a.ta
 vendor/thh/ta/c1882f2d885e4e13a8c8e2622461b2fa.ta
 vendor/thh/ta/d91f322ad5a441d5955110eda3272fc0.ta
@@ -1857,6 +1858,11 @@ vendor/lib64/mt6835/sc820cs_txd_front_mipi_raw_tuning.so:vendor/lib64/sc820cs_tx
 # source-built ones have a different C++ layout. Shipped renamed.
 vendor/lib64/android.hardware.graphics.composer@2.1-resources.so:vendor/lib64/android.hardware.graphics.composer@2.1-resources-v33.so
 vendor/lib64/android.hardware.graphics.composer@2.2-resources.so:vendor/lib64/android.hardware.graphics.composer@2.2-resources-v33.so
+
+# Android 13 vendor camera NDK for the ArcSoft face HAL. It passes image
+# reader and enrollment preview windows as HIDL token handles, which only the
+# HIDL frameworks.cameraservice path accepts. Shipped renamed.
+vendor/lib64/libcamera2ndk_vendor.so:vendor/lib64/libcamera2ndk_vendor-v33.so;FIX_SONAME
 
 # Stock MediaTek Wi-Fi HAL, loaded through libwifi-hal-wrapper.
 vendor/lib64/libwifi-hal.so:vendor/lib64/libwifi-hal-mtk.so;FIX_SONAME

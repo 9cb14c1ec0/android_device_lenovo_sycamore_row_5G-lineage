@@ -80,6 +80,7 @@ PRODUCT_COPY_FILES += \
 # -- Overlays ------------------------------------------------------------
 PRODUCT_PACKAGES += \
     FrameworksResOverlaySycamore \
+    SettingsResOverlaySycamore \
     WifiResOverlaySycamore
 
 # -- Soong namespace -----------------------------------------------------
@@ -122,6 +123,7 @@ PRODUCT_COPY_FILES += \
 # -- Permissions / hardware features ---------------------------------------------
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.audio.low_latency.xml \
+    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.biometrics.face.xml \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
     frameworks/native/data/etc/android.hardware.faketouch.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.faketouch.xml \
@@ -321,3 +323,7 @@ PRODUCT_PACKAGES += \
 # refuses the internet PDN (see datasettings/main.cpp).
 PRODUCT_PACKAGES += \
     mtk_data_settings
+
+# Face unlock: signals the end of face template import (see faceimport/).
+PRODUCT_PACKAGES += \
+    face_import_finish

@@ -1,0 +1,17 @@
+# Lenovo face template import service, used by the ArcSoft face HAL at startup
+# (ported from the stock vendor_sepolicy.cil).
+type hal_lenovofaceimport_default, domain;
+type hal_lenovofaceimport_default_exec, exec_type, vendor_file_type, file_type;
+type hal_lenovofaceimport_service, service_manager_type;
+
+init_daemon_domain(hal_lenovofaceimport_default)
+binder_use(hal_lenovofaceimport_default)
+add_service(hal_lenovofaceimport_default, hal_lenovofaceimport_service)
+binder_call(hal_lenovofaceimport_default, hal_face_default)
+
+allow hal_lenovofaceimport_default teei_client_device:chr_file rw_file_perms;
+allow hal_lenovofaceimport_default face_data_file:dir r_dir_perms;
+allow hal_lenovofaceimport_default face_data_file:file rw_file_perms;
+
+allow hal_face_default hal_lenovofaceimport_service:service_manager find;
+binder_call(hal_face_default, hal_lenovofaceimport_default)

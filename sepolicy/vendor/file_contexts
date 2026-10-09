@@ -20,3 +20,11 @@
 
 # Modem data settings sync (see mtk_data_settings.te).
 /vendor/bin/mtk_data_settings                                        u:object_r:mtk_data_settings_exec:s0
+
+# ArcSoft face templates (see hal_face_default.te).
+/data/vendor/face(/.*)?                                              u:object_r:face_data_file:s0
+/data/vendor/arcsoft(/.*)?                                           u:object_r:arcsoft_data_file:s0
+
+# Lenovo face template import service (see hal_lenovofaceimport.te).
+/vendor/bin/hw/vendor\.lenovo\.hardware\.faceimport-service          u:object_r:hal_lenovofaceimport_default_exec:s0
+/vendor/bin/face_import_finish                                       u:object_r:face_import_finish_exec:s0

@@ -1,0 +1,9 @@
+service vendor.face_import_finish /vendor/bin/face_import_finish
+    class late_start
+    user system
+    group system
+    oneshot
+    disabled
+
+on property:init.svc.vendor.face-default=running
+    restart vendor.face_import_finish

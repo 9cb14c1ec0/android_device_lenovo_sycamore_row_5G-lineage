@@ -254,6 +254,13 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/bin/hw/wpa_supplicant_mtk': blob_fixup()
         .add_needed('libcrypto_shim.so')
         .add_needed('libcrypto_sycamore_shim.so'),
+    # ArcSoft face HAL: Android 13 vendor camera NDK window handles.
+    'vendor/lib64/libarcsoft_biometrics_face_service.so': blob_fixup()
+        .replace_needed('libcamera2ndk_vendor.so', 'libcamera2ndk_vendor-v33.so'),
+    # Its AHandler subclasses need the Android 13 AHandler layout; with the
+    # Android 16 one, closing the camera deadlocks the face HAL.
+    'vendor/lib64/libcamera2ndk_vendor-v33.so': blob_fixup()
+        .replace_needed('libstagefright_foundation.so', 'libstagefright_foundation-v33.so'),
     # Android 13 C-linkage libprocessgroup wrappers removed by Android 16.
     (
         'vendor/lib64/hw/hwcomposer.mtk_common.so',

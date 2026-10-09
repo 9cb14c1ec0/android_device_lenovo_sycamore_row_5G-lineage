@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- The ArcSoft face HAL captures from the front camera itself; a preview
+         would take the camera away from it. -->
+    <bool name="config_face_enroll_camera_preview">false</bool>
+</resources>

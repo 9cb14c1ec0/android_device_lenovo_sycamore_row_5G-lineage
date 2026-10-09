@@ -1,2 +1,32 @@
-# Arcsoft face HAL talks to its Beanpod TA.
+# ArcSoft face HAL, ported from the stock vendor policy.
+type face_data_file, file_type, data_file_type;
+type arcsoft_data_file, file_type, data_file_type;
+
+# Beanpod TA.
 allow hal_face_default teei_client_device:chr_file rw_file_perms;
+
+# Templates (stock also gives it all of vendor_data_file).
+allow hal_face_default { face_data_file arcsoft_data_file }:dir create_dir_perms;
+allow hal_face_default { face_data_file arcsoft_data_file }:file create_file_perms;
+allow hal_face_default vendor_data_file:dir create_dir_perms;
+allow hal_face_default vendor_data_file:file create_file_perms;
+
+# It captures frames itself through the vendor camera NDK (cameraserver),
+# into AImageReader buffers handed over via the HIDL token manager.
+hwbinder_use(hal_face_default)
+allow hal_face_default fwk_camera_service:service_manager find;
+allow hal_face_default { fwk_camera_hwservice hidl_token_hwservice hal_graphics_mapper_hwservice }:hwservice_manager find;
+binder_call(hal_face_default, camera_service_server)
+binder_call(camera_service_server, hal_face_default)
+allow hal_face_default cameraserver:fd use;
+get_prop(hal_face_default, camera_config_prop)
+hal_client_domain(hal_face_default, hal_graphics_allocator)
+allow hal_face_default dmabuf_system_heap_device:chr_file r_file_perms;
+allow hal_face_default dmabuf_system_secure_heap_device:chr_file r_file_perms;
+
+# MediaTek GPU and performance hints.
+allow hal_face_default proc_ged:file rw_file_perms;
+allowxperm hal_face_default proc_ged:file ioctl 0x6767;
+allow hal_face_default proc_perfmgr:dir r_dir_perms;
+allow hal_face_default proc_perfmgr:file rw_file_perms;
+allowxperm hal_face_default proc_perfmgr:file ioctl { 0x6701 0x6710 };

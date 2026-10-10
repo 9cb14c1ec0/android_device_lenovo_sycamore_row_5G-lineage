@@ -64,7 +64,8 @@ or -bootloader fall through to normal boot.
 - Audio service fork in `audio/service` (optional sound trigger / MTK AIDL).
 - `sepolicy/vendor`: dynamicdata (selects the userdata fstab; without it
   /data never mounts), KeyMint/HAL/blob labels, wakeup and battery sysfs.
-- eSIM: OpenEUICC + deps from `.repo/local_manifests/sycamore_row_5G.xml`.
+- eSIM: OpenEUICC, shown as "eSIM Manager" (our fork renames the app
+  label), + deps from `.repo/local_manifests/sycamore_row_5G.xml`.
 
 Bring-up diagnostics (early root adb, log collectors in /metadata) are opt-in:
 `TB336ZA_BRINGUP=true` on userdebug; see `bringup/README.md`.
@@ -87,7 +88,6 @@ Install Git LFS first (`git lfs install`): the vendor tree keeps
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
     <remote name="github-https" fetch="https://github.com/" />
-    <remote name="angry" fetch="https://gitea.angry.im/" />
     <project name="9cb14c1ec0/android_device_lenovo_sycamore_row_5G-lineage" path="device/lenovo/sycamore_row_5G" remote="github-https" revision="main" />
     <project name="9cb14c1ec0/android_device_lenovo_sycamore_row_5G-kernel" path="device/lenovo/sycamore_row_5G-kernel" remote="github-https" revision="lineage-23.2" />
     <project name="9cb14c1ec0/android_kernel_lenovo_mt6835" path="kernel/lenovo/mt6835" remote="github-https" revision="lineage-23.2" />
@@ -95,15 +95,16 @@ Install Git LFS first (`git lfs install`): the vendor tree keeps
     <project name="LineageOS/android_device_mediatek_sepolicy_vndr" path="device/mediatek/sepolicy_vndr" remote="github" revision="lineage-23.2" />
     <project name="LineageOS/android_hardware_mediatek" path="hardware/mediatek" remote="github" revision="lineage-23.2" />
     <!-- eSIM (OpenEUICC) and MediaTek IMS -->
-    <project name="PeterCxy/OpenEUICC" path="packages/apps/OpenEUICC" remote="angry" revision="89d677e07d0ebbd2d157ede2cb31f76aec737e3a" sync-s="true" />
-    <project name="PeterCxy/android_prebuilts_openeuicc-deps" path="prebuilts/openeuicc-deps" remote="angry" revision="540216793010cabc49782bd01844cd8dd28a4c7c" />
+    <project name="9cb14c1ec0/android_packages_apps_OpenEUICC" path="packages/apps/OpenEUICC" remote="github-https" revision="lineage-23.2" />
+    <project name="estkme-group/lpac" path="packages/apps/OpenEUICC/libs/lpac-jni/src/main/jni/lpac" remote="github-https" revision="50cdf15ab40942b00f8819a1c2ca19997f1a6d34" />
+    <project name="DaveGamble/cJSON" path="packages/apps/OpenEUICC/libs/lpac-jni/src/main/jni/cjson/cjson" remote="github-https" revision="6d9f2443ab071f86e5d9b43025a40929ec41c46c" />
+    <project name="9cb14c1ec0/android_prebuilts_openeuicc-deps" path="prebuilts/openeuicc-deps" remote="github-https" revision="lineage-23.2" />
     <project name="techyminati/android_vendor_mediatek_ims" path="vendor/mediatek/ims" remote="github-https" revision="e9cab87f806ab010346dd61cab3dc4fd6051aa59" />
 </manifest>
 ```
 
-`prebuilts/openeuicc-deps` needs one local change: `sdk_version: "37"` ->
-`"current"` (Android 16 has no SDK 37). Then `repo sync`, `source
-build/envsetup.sh`, `breakfast sycamore_row_5G userdebug`, `m`.
+Then `repo sync`, `source build/envsetup.sh`, `breakfast sycamore_row_5G
+userdebug`, `m`.
 
 ## Bootloader / Verified Boot
 

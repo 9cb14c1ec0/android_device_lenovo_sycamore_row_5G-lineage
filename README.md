@@ -6,7 +6,7 @@ LineageOS 23.2 (Android 16) device tree for the **Lenovo Tab K11 Gen 2 5G**
 | Item | Value |
 | --- | --- |
 | SoC | MediaTek MT6835 (Dimensity 6300), `ro.board.platform=mt6835`, `androidboot.hardware=mt8755` |
-| Kernel | GKI `5.15.197-android13-8`, built from source (`kernel/lenovo/mt6835`, AOSP `android13-5.15-2026-03`) |
+| Kernel | GKI `5.15.197-android13-8`, built from source ([android_kernel_lenovo_mt6835](https://github.com/9cb14c1ec0/android_kernel_lenovo_mt6835), AOSP `android13-5.15-2026-03`) |
 | Storage | UFS, A/B + Virtual A/B (compression) |
 | Boot layout | boot header v4, `boot` + `init_boot` + `vendor_boot`, no recovery partition |
 | Panel | 1600x2560 @ 90 Hz, 320 dpi |
@@ -76,6 +76,34 @@ logical data ended up in physical `super` extents used by stock slot A
 (`system_b` at sector 2048 overlapping `odm_dlkm_a` / `product_a`), and only a
 full stock `.354` `super` restore fixed it. See
 `~/tb336za/BOOTLOOP_REASSESSMENT.md`.
+
+## Building
+
+Install Git LFS first (`git lfs install`): the vendor tree keeps
+`libarcsoft_faceid.so` (128 MB) in LFS. Then add
+`.repo/local_manifests/sycamore_row_5G.xml` to a LineageOS 23.2 checkout:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <remote name="github-https" fetch="https://github.com/" />
+    <remote name="angry" fetch="https://gitea.angry.im/" />
+    <project name="9cb14c1ec0/android_device_lenovo_sycamore_row_5G-lineage" path="device/lenovo/sycamore_row_5G" remote="github-https" revision="main" />
+    <project name="9cb14c1ec0/android_device_lenovo_sycamore_row_5G-kernel" path="device/lenovo/sycamore_row_5G-kernel" remote="github-https" revision="lineage-23.2" />
+    <project name="9cb14c1ec0/android_kernel_lenovo_mt6835" path="kernel/lenovo/mt6835" remote="github-https" revision="lineage-23.2" />
+    <project name="9cb14c1ec0/android_vendor_lenovo_sycamore_row_5G" path="vendor/lenovo/sycamore_row_5G" remote="github-https" revision="main" />
+    <project name="LineageOS/android_device_mediatek_sepolicy_vndr" path="device/mediatek/sepolicy_vndr" remote="github" revision="lineage-23.2" />
+    <project name="LineageOS/android_hardware_mediatek" path="hardware/mediatek" remote="github" revision="lineage-23.2" />
+    <!-- eSIM (OpenEUICC) and MediaTek IMS -->
+    <project name="PeterCxy/OpenEUICC" path="packages/apps/OpenEUICC" remote="angry" revision="89d677e07d0ebbd2d157ede2cb31f76aec737e3a" sync-s="true" />
+    <project name="PeterCxy/android_prebuilts_openeuicc-deps" path="prebuilts/openeuicc-deps" remote="angry" revision="540216793010cabc49782bd01844cd8dd28a4c7c" />
+    <project name="techyminati/android_vendor_mediatek_ims" path="vendor/mediatek/ims" remote="github-https" revision="e9cab87f806ab010346dd61cab3dc4fd6051aa59" />
+</manifest>
+```
+
+`prebuilts/openeuicc-deps` needs one local change: `sdk_version: "37"` ->
+`"current"` (Android 16 has no SDK 37). Then `repo sync`, `source
+build/envsetup.sh`, `breakfast sycamore_row_5G userdebug`, `m`.
 
 ## Bootloader / Verified Boot
 

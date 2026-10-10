@@ -510,8 +510,6 @@ vendor/lib/egl/libGLES_meow.so
 vendor/lib/egl/libMEOW_data.so
 vendor/lib/egl/libMEOW_qt.so
 vendor/lib/egl/libMEOW_trace.so
-vendor/lib/hw/audio.primary.mt6835.so
-vendor/lib/hw/audio.r_submix.mt6835.so
 vendor/lib/hw/gps.default.so
 vendor/lib/hw/id_attestation.beanpod.so
 vendor/lib/hw/kmsetkey.beanpod.so

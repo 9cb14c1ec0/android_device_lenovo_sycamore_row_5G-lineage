@@ -34,12 +34,19 @@ TARGET_BOARD_PLATFORM := mt6835
 TARGET_BOOTLOADER_BOARD_NAME := sycamore_row_5G
 TARGET_NO_BOOTLOADER := true
 
-# Kernel: prebuilt, from device/lenovo/sycamore_row_5G-kernel (see its README).
-# Stock GKI 5.15.197-android13 Image, stock DTB/DTBO and stock vendor_dlkm /
-# vendor_ramdisk modules. Lenovo has not released matching kernel source.
-KERNEL_PATH := $(DEVICE_PATH)-kernel
+# Kernel: the stock kernel is Google's GKI build of android13-5.15-2026-03
+# (5.15.197-android13-8-00005-g2d8ad9139b89), so it is built from that source
+# in kernel/lenovo/mt6835. MediaTek's vendor modules, DTB and DTBO stay
+# prebuilt in device/lenovo/sycamore_row_5G-kernel (see its README); the KMI
+# is unchanged, so they load as-is. Keep LZ4 for Lenovo's LK decompressor.
 TARGET_NO_KERNEL := false
-TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/Image.lz4
+TARGET_KERNEL_SOURCE := kernel/lenovo/mt6835
+TARGET_KERNEL_CONFIG := gki_defconfig vendor/sycamore_row_5G.config
+TARGET_KERNEL_VERSION := 5.15
+TARGET_KERNEL_ADDITIONAL_FLAGS := BRANCH=android13-5.15 KMI_GENERATION=8
+BOARD_KERNEL_IMAGE_NAME := Image.lz4
+
+KERNEL_PATH := $(DEVICE_PATH)-kernel
 BOARD_PREBUILT_DTBIMAGE_DIR := $(KERNEL_PATH)/dtb
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img

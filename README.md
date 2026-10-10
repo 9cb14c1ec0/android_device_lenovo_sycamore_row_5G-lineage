@@ -6,16 +6,17 @@ LineageOS 23.2 (Android 16) device tree for the **Lenovo Tab K11 Gen 2 5G**
 | Item | Value |
 | --- | --- |
 | SoC | MediaTek MT6835 (Dimensity 6300), `ro.board.platform=mt6835`, `androidboot.hardware=mt8755` |
-| Kernel | GKI `5.15.197-android13`, prebuilt (no source from Lenovo) |
+| Kernel | GKI `5.15.197-android13-8`, built from source (`kernel/lenovo/mt6835`, AOSP `android13-5.15-2026-03`) |
 | Storage | UFS, A/B + Virtual A/B (compression) |
 | Boot layout | boot header v4, `boot` + `init_boot` + `vendor_boot`, no recovery partition |
 | Panel | 1600x2560 @ 90 Hz, 320 dpi |
 | Stock base | Android 16, `17.5.10.354` (`BP2A.250605.031.A3`) |
 | TEE | Microtrust/Beanpod, KeyMint 2.0 (AIDL) + HIDL gatekeeper@1.0 |
 
-It follows the TB305FU (`clove_row_wifi`) playbook: prebuilt GKI kernel, stock
-DTB/DTBO and modules, vendor blobs extracted from stock, system built from
-LineageOS source.
+It follows the TB305FU (`clove_row_wifi`) playbook, except the GKI kernel is
+built from source: the stock kernel is Google's unmodified GKI build
+(`2d8ad9139b89`), so the stock DTB/DTBO and MediaTek modules load on it as-is.
+Vendor blobs are extracted from stock; system is built from LineageOS source.
 
 ## Status
 

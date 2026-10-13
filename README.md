@@ -20,32 +20,46 @@ Vendor blobs are extracted from stock; system is built from LineageOS source.
 
 ## Status
 
-LineageOS 23.2 boots to setup/home on slot A in ~35 s, repeatably.
-Lunch: `lineage_sycamore_row_5G-bp4a-userdebug` (LineageOS 23.2's release
-config; `bp2a` leaves Launcher3 Overview flags off and Trebuchet crashes).
+LineageOS 23.2 boots to setup/home on slot A in ~35 s, repeatably, and is
+in daily use on the developer's tablet. `/data` is encrypted and unlocks
+automatically through the stock Beanpod TEE.
 
-Working: display/HWC, touch + stylus, gestures, audio + vibration, both
-cameras (photo, video recording and hardware playback), Wi-Fi (WPA2/WPA3) and
-hotspot, Bluetooth, sensors, battery/charging, suspend, GNSS HAL, RIL/modem,
-telephony services, eSIM (OpenEUICC finds the eUICC in slot 2).
+| Area | State |
+| --- | --- |
+| Display, touch, stylus, gestures | Working |
+| Audio, vibration | Working |
+| Cameras | Working: both cameras, photo, video recording, hardware playback |
+| Face unlock | Working (ArcSoft HAL; needs the Settings fork below) |
+| Wi-Fi (WPA2/WPA3), hotspot, Bluetooth | Working |
+| Sensors, battery/charging, suspend | Working |
+| Telephony | Working: VoLTE calls, SMS and mobile data (tested on US Mobile / Verizon, physical SIM in slot 2) |
+| eSIM | eUICC detected by OpenEUICC ("eSIM Manager"); profile download not yet tested |
+| GNSS | HAL starts; outdoor fix not yet confirmed |
+| Kernel | GKI 5.15 built from source; all stock MediaTek modules load |
+| Lenovo-only HALs | Not ported: keyboard cover, display tuning, factory, misc |
+| Installation | Manual, slot A only (see below); flashable zip / OTA in progress |
 
-IMS: MediaTek ImsService (vendor/mediatek/ims, local manifest) binds as the
-MMTEL/emergency provider on both slots; VoLTE registration untested (no SIM).
+Lunch target: `lineage_sycamore_row_5G-bp4a-userdebug`. Do **not** use
+`bp2a`: Launcher3 Overview flags are off there (Trebuchet crashes), and its
+2025-08 security patch level is lower than `bp4a`'s 2026-09. Installing a
+lower patch level makes KeyMint reject the existing disk encryption key, so
+`/data` will not mount and the tablet falls back to recovery until a `bp4a`
+build is reinstalled.
 
-Not done: some Lenovo-only HAL
-domains (keyboard, display tuning, factory, ...), eSIM profile download not
-yet tested with a carrier code.
+### Install (slot A only, for now)
 
-### Install (slot A only)
-
-From Lineage recovery: `tools/install-diagnostic-slot-a.sh --flash`
-(`FLASH_BOOT=1` also flashes `boot_a`, needed when the release config changes
-the boot header patch level). It writes the four logical images through
-existing slot-A `super` metadata with SHA-256 readback, then flashes the
-vbmeta chain, `init_boot_a` and `vendor_boot_a` and verifies recovery. Adb and
-fastboot are pinned to `ANDROID_SERIAL` (default `HNY0HTW6`). A second
+From Lineage recovery: `tools/install-diagnostic-slot-a.sh --flash`. Set
+`FLASH_BOOT=1` whenever `boot.img` changed (kernel or patch level). The script
+writes the four logical images into the existing slot-A extents of `super`
+with SHA-256 readback, then flashes the vbmeta chain, `boot_a` (optional),
+`init_boot_a` and `vendor_boot_a`, and verifies that recovery comes back. Adb
+and fastboot are pinned to `ANDROID_SERIAL` (default `HNY0HTW6`). A second
 MediaTek device in preloader mode on the same host can make reboot-to-recovery
 or -bootloader fall through to normal boot.
+
+Recovery runs on the `boot.img` kernel, so a kernel that does not boot also
+takes recovery down; fall back to bootloader fastboot (hardware keys) and the
+previous boot/init_boot/vendor_boot/vbmeta set.
 
 ### Android 13 vendor on Android 16: compatibility layers
 
@@ -66,17 +80,33 @@ or -bootloader fall through to normal boot.
   /data never mounts), KeyMint/HAL/blob labels, wakeup and battery sysfs.
 - eSIM: OpenEUICC, shown as "eSIM Manager" (our fork renames the app
   label), + deps from `.repo/local_manifests/sycamore_row_5G.xml`.
+- Mobile data: AOSP never calls MediaTek's `syncDataSettingsToMd`, so the
+  modem refuses data (`VZW_DATA_NOT_ALLOWED`); `datasettings/` sends it.
+- Face unlock: ArcSoft HAL with its TA, A13 `libcamera2ndk_vendor-v33`,
+  the `faceimport` finish helper, and a Settings fork that hands the
+  enrollment preview surface to the HAL instead of opening the camera
+  (`config_face_enroll_camera_preview`, set false by
+  `rro_overlays/SettingsResOverlaySycamore`).
 
 Bring-up diagnostics (early root adb, log collectors in /metadata) are opt-in:
 `TB336ZA_BRINGUP=true` on userdebug; see `bringup/README.md`.
 
-### Slot B warning (2026-10-05)
+### Slot B history (2026-10-05)
 
-Do **not** repeat the slot-B sideload or fastbootd flash sequence: slot-B
-logical data ended up in physical `super` extents used by stock slot A
-(`system_b` at sector 2048 overlapping `odm_dlkm_a` / `product_a`), and only a
-full stock `.354` `super` restore fixed it. See
-`~/tb336za/BOOTLOOP_REASSESSMENT.md`.
+An earlier slot-B attempt failed in two separate ways:
+
+- LK preloads `boot`, `init_boot` and `vendor_boot` at full partition size
+  into a 140 MiB pool; stock `init_boot_b` was 15 MiB, which overflowed it
+  ("[AVB] malloc error", then `ASSERT boot_info.c:181`). Fixed by shrinking
+  `init_boot_b` to 8 MiB in the GPT (done on the developer's tablet).
+- Slot B's logical partitions were placed over slot A's extents in `super`
+  (`system_b` at sector 2048, over `odm_dlkm_a` / `product_a`), corrupting
+  slot A; only a full stock `super` restore fixed it. The recovery sideload
+  from that day used proper Virtual A/B snapshots, so the likely cause is
+  the fastbootd flashing done with slot B active: fastbootd rewrites the
+  `super` metadata keeping only the active slot's partitions.
+
+Until OTA support is verified, do not flash slot B through fastbootd.
 
 ## Building
 
@@ -100,11 +130,20 @@ Install Git LFS first (`git lfs install`): the vendor tree keeps
     <project name="DaveGamble/cJSON" path="packages/apps/OpenEUICC/libs/lpac-jni/src/main/jni/cjson/cjson" remote="github-https" revision="6d9f2443ab071f86e5d9b43025a40929ec41c46c" />
     <project name="9cb14c1ec0/android_prebuilts_openeuicc-deps" path="prebuilts/openeuicc-deps" remote="github-https" revision="lineage-23.2" />
     <project name="techyminati/android_vendor_mediatek_ims" path="vendor/mediatek/ims" remote="github-https" revision="e9cab87f806ab010346dd61cab3dc4fd6051aa59" />
+    <!-- Settings: face enrollment preview drawn by the face HAL -->
+    <remove-project name="LineageOS/android_packages_apps_Settings" />
+    <project name="9cb14c1ec0/android_packages_apps_Settings" path="packages/apps/Settings" remote="github-https" revision="lineage-23.2" groups="pdk-fs,pdk-cw-tvc,sysui-studio" />
 </manifest>
 ```
 
-Then `repo sync`, `source build/envsetup.sh`, `breakfast sycamore_row_5G
-userdebug`, `m`.
+Then:
+
+```sh
+repo sync
+source build/envsetup.sh
+lunch lineage_sycamore_row_5G-bp4a-userdebug
+m
+```
 
 ## Bootloader / Verified Boot
 

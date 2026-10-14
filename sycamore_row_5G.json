@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "datetime": 1791979439,
+    "type": "unofficial",
+    "version": "23.2",
+    "files": [
+      {
+        "filename": "lineage-23.2-20261014-UNOFFICIAL-sycamore_row_5G.zip",
+        "os_patch_level": "2026-09-01",
+        "os_sdk_level": 36,
+        "ota_property_files": "payload_metadata.bin:4479:52405,payload.bin:4479:1389378699,payload_properties.txt:1389383236:155,apex_info.pb:2225:1293,care_map.pb:3565:867,metadata:69:679,metadata.pb:816:1361",
+        "sha256": "99c467d1eabc72034539f09fed8d93380d6adf80ba81d92c832f913c28745fec",
+        "size": 1389386671,
+        "url": "https://github.com/9cb14c1ec0/android_device_lenovo_sycamore_row_5G-lineage/releases/download/lineage-23.2-20261014/lineage-23.2-20261014-UNOFFICIAL-sycamore_row_5G.zip"
+      }
+    ]
+  }
+]

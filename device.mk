@@ -6,6 +6,13 @@
 LOCAL_PATH := device/lenovo/sycamore_row_5G
 
 # -- A/B / update_engine -------------------------------------------------
+# Updater: builds are GitHub releases of this repo, listed in {device}.json on
+# its gh-pages branch (written by tools/make-ota-json.py). Raw github URLs
+# would exceed the 91-byte property limit, and release "latest" links
+# redirect, which the Updater does not follow for its JSON.
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    lineage.updater.uri=https://9cb14c1ec0.github.io/android_device_lenovo_sycamore_row_5G-lineage/{device}.json
+
 # Only the partitions we actually build are listed for postinstall.
 AB_OTA_POSTINSTALL_CONFIG += \
     RUN_POSTINSTALL_system=true \

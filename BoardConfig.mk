@@ -84,16 +84,21 @@ TARGET_NO_RECOVERY := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 
-# A/B OTA. LK only boots a Lenovo-signed vbmeta and rejects a modified
-# init_boot, so boot, init_boot, vbmeta, vbmeta_system and vbmeta_vendor are
-# NOT shipped: both slots keep the stock 17.5.10.354 images (boot's kernel is
-# identical to our prebuilt). Firmware (preloader, lk, tee, gz, scp, sspm,
-# spmfw, md1img, ...) is not shipped either; both slots must carry the same
-# stock firmware. Slot B also needs init_boot_b shrunk to 8 MiB in the GPT
-# (see README.md).
+# A/B OTA. The stock LK boots our self-signed boot chain (boot, init_boot,
+# vendor_boot, vbmeta*) on either slot, so the OTA ships it like any other
+# device. Firmware (preloader, lk, tee, gz, scp, sspm, spmfw, md1img, ...) is
+# not shipped: both slots must already carry the same stock 17.5.10.354
+# firmware. LK loads boot, init_boot and vendor_boot at full partition size,
+# so init_boot_b must be 8 MiB like init_boot_a (stock GPTs had 15 MiB; see
+# README.md).
 AB_OTA_PARTITIONS += \
+    boot \
+    init_boot \
     vendor_boot \
     dtbo \
+    vbmeta \
+    vbmeta_system \
+    vbmeta_vendor \
     system \
     system_ext \
     product \
@@ -188,16 +193,9 @@ DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/configs/wifi/android.hardware.wifi.suppli
 DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml
 
-# Verified Boot. Even unlocked, the stock LK only boots when the top-level
-# vbmeta is a valid Lenovo-signed image: with our test-key vbmeta (or a stock
-# one with edited flags) it logs "Public key used to sign data rejected" /
-# "HASH_MISMATCH" and halts on "ASSERT ... g_boot_info.hdr_loaded". Unlocked,
-# it does tolerate mismatching images below a valid vbmeta (that is how the
-# modified vendor_boot boots). LK cannot be patched (secure boot is fused on),
-# so slot B carries the stock vbmeta, vbmeta_system, vbmeta_vendor and boot
-# images (see README.md) and the fstabs mount the logical partitions without
-# dm-verity, since the stock hashtree digests don't match our images. The
-# build still self-signs with the AVB test key.
+# Verified Boot. The bootloader is unlocked (orange state); the stock LK boots
+# a vbmeta signed with any key and only enforces its hashes for the images it
+# loads. The build self-signs with the AVB test key.
 BOARD_AVB_ENABLE := true
 BOARD_AVB_ALGORITHM := SHA256_RSA4096
 BOARD_AVB_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
